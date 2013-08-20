@@ -2,7 +2,8 @@
              (web response)
              (web client)
              (web uri)
-             (json)) ; maybe allow xml, since it comes with guile?
+             (json)
+             (ice-9 regex)) ; maybe allow xml, since it comes with guile?
                      ; whooo no dependencies
 
 (define (zero-click query-string)
@@ -28,13 +29,33 @@
       ;; can e.g. distinguish useful results from all blanks.
       (json->scm port))))
 
+
+(define unreserved-chars
+  ;; Differs from usual set by inclusion of #\space
+  (string->char-set
+   (string-append
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789"
+    "-_.~ ")))
+
+(define (normalize-newlines string)
+  "Takes a string and returns a new string where '\r' or '\n' on it's own is replaced with '\r\n'"
+  (regexp-substitute/global #f "\r\n|\r|\n" string 'pre "\r\n" 'post))
+
 (define (form-encode form-alist)
   ;; Look Ma, No consistency checks!
-  (define (escape str)
-    ;; don't get me started on how wrong this is, but it will do for a start
-    (uri-encode (string-map (lambda (c) (if (eqv? c #\space) #\+ c)) str)))
+  (define (encode str)
+    (string-map (lambda (c) (if (eqv? c #\space) #\+ c))
+                (uri-encode (normalize-newlines str)
+                            #:unescaped-chars unreserved-chars)))
+
+  (define (->string o)
+    (object->string o display))
+
   (string-join
    (map (lambda (pair)
-          (string-append (escape (symbol->string (car pair))) "=" (escape (cdr pair))))
+          (string-append (encode (->string (car pair))) "="
+                         (encode (->string (cdr pair)))))
         form-alist)
    "&"))
