@@ -1,10 +1,10 @@
-(use-modules (web request)
-             (web response)
-             (web client)
-             (web uri)
-             (json)
-             (ice-9 regex)) ; maybe allow xml, since it comes with guile?
-                     ; whooo no dependencies
+(define-module (ddg)
+  #:use-module (web uri)
+  #:use-module (web client)
+  #:use-module (web response)
+  #:use-module (ice-9 regex)
+  #:use-module (json)                   ; TODO: xml?
+  #:export (zero-click))
 
 (define (zero-click query-string)
   (define uri
