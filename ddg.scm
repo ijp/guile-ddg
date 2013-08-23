@@ -6,7 +6,9 @@
   #:use-module (json)                   ; TODO: xml?
   #:export (zero-click))
 
-(define (zero-click query-string)
+(define app-name "guile-ddg")
+
+(define* (zero-click query-string #:key (app app-name))
   (define uri
     (build-uri 'http
                #:host "api.duckduckgo.com"
@@ -14,7 +16,7 @@
                                         ; compatibility with buggy guile
                #:query (form-encode `((q . ,query-string)
                                       (no_redirect . "1")
-                                      ;(t . "guile-ddg")
+                                      (t . ,app)
                                       (format . "json")
                                       ;(no_html . "1")
                                       ))
