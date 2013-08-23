@@ -22,6 +22,10 @@
 (define app-name "guile-ddg")
 
 (define* (zero-click query-string #:key (app app-name))
+  "Makes a query to the DuckDuckGo instant answer API. Takes a
+mandatory QUERY-STRING argument, and returns a json object. You may
+pass in an optional #:app keyword argument to specify the application
+name the request uses."
   (define uri
     (build-uri 'http
                #:host "api.duckduckgo.com"
